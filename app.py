@@ -82,10 +82,9 @@ with st.sidebar:
 def load_data():
     df = pd.read_csv("migrain_df.csv")
     df_clean = pd.read_csv("migrain_df_clean.csv")
-    return df
+    return df, df_clean
 
-df = load_data()
-
+df, df_clean = load_data()
 
 # ========== SECCIÓN: INTRODUCCIÓN ==========
 if section == "Introduccion":
@@ -335,7 +334,7 @@ elif section == "Descripcion de Datos":
 elif section == "Análisis Estadístico":
     st.markdown('<h2 class="section-header">Análisis Estadístico Detallado</h2>', unsafe_allow_html=True)
     
-    tab1, tab2, tab3 = st.tabs(["Variables Numéricas", "Variable Type", "Matrices de Correlaciones"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Variables Numéricas", "Variable Type", "Matrices de Correlaciones", "Box plots"])
     
     with tab1:
         st.subheader("Distribución de Variables Numéricas")
@@ -351,7 +350,7 @@ elif section == "Análisis Estadístico":
 
         # Gráfica dinámica
         fig = px.histogram(
-            df,
+            df_clean,
             x=selected_var,
             nbins=30,
             marginal="box",
@@ -363,16 +362,16 @@ elif section == "Análisis Estadístico":
 
         # Métricas dinámicas
         col1, col2, col3, col4 = st.columns(4)
-        col1.metric("Mínimo", f"{df[selected_var].min():.2f}")
-        col2.metric("Máximo", f"{df[selected_var].max():.2f}")
-        col3.metric("Promedio", f"{df[selected_var].mean():.2f}")
-        col4.metric("Mediana", f"{df[selected_var].median():.2f}")
+        col1.metric("Mínimo", f"{df_clean[selected_var].min():.2f}")
+        col2.metric("Máximo", f"{df_clean[selected_var].max():.2f}")
+        col3.metric("Promedio", f"{df_clean[selected_var].mean():.2f}")
+        col4.metric("Mediana", f"{df_clean[selected_var].median():.2f}")
 
     with tab2:
         st.subheader("Variable objetivo: Type")
         
         # Distribución completa
-        type_dist = df['Type'].value_counts()
+        type_dist = df_clean['Type'].value_counts()
 
         # histograma
         fig = px.bar(
@@ -410,8 +409,8 @@ elif section == "Análisis Estadístico":
         symptom_prevalence = {}
         
         for col in symptom_cols:
-            if col in df.columns:
-                symptom_prevalence[col] = df[col].mean() * 100
+            if col in df_clean.columns:
+                symptom_prevalence[col] = df_clean[col].mean() * 100
         
         symptom_df = pd.DataFrame({
             'Síntoma': list(symptom_prevalence.keys()),
@@ -430,7 +429,7 @@ elif section == "Análisis Estadístico":
     
     with tab3:
         st.subheader("Matriz de variables categoricas binarias")
-        corr_columnas = df[["Nausea", "Vomit", "Phonophobia", "Photophobia", "Sensory", "Vertigo", "Tinnitus", "Hypoacusis", "Diplopia", "Defect", "Conscience", "Paresthesia", "DPF", "Intensity", "Age"]].corr()
+        corr_columnas = df_clean[["Nausea", "Vomit", "Phonophobia", "Photophobia", "Vertigo", "Tinnitus", "Hypoacusis", "Diplopia", "Defect", "Conscience", "Paresthesia", "DPF", "Intensity", "Age"]].corr()
         
         fig, ax = plt.subplots(figsize=(12, 10))
         sns.heatmap(
@@ -448,7 +447,7 @@ elif section == "Análisis Estadístico":
         st.pyplot(fig)
 
         binary_text = """La matriz de correlación muestra, en general, bajas asociaciones lineales entre los síntomas,
-        lo cual es característico en datos clínicos de migraña debido a la alta <b>variabilidad individual
+        lo cual es característico en datos clínicos de migraña debido a la alta variabilidad individual
         de los episodios. No obstante, se identifican algunas correlaciones clínicamente relevantes."""
         st.markdown(binary_text)
         
@@ -482,8 +481,8 @@ elif section == "Análisis Estadístico":
         }
 
         heatmap_df = pd.crosstab(
-        df["Location"].map(location_labels),
-        df["Character"].map(character_labels),
+        df_clean["Location"].map(location_labels),
+        df_clean["Character"].map(character_labels),
         normalize="index"
         )
 
@@ -506,8 +505,8 @@ elif section == "Análisis Estadístico":
         st.pyplot(fig)
 
         st.subheader("Matriz de correlacion de variables por el tipo de migraña")
-        binary_vars = ["Nausea", "Vomit", "Phonophobia", "Photophobia", "Sensory", "Vertigo", "Tinnitus", "Hypoacusis", "Diplopia", "Defect", "Conscience", "Paresthesia", "DPF"]
-        migraine_types = sorted(df["Type"].unique())
+        binary_vars = ["Nausea", "Vomit", "Phonophobia", "Photophobia", "Vertigo", "Tinnitus", "Hypoacusis", "Diplopia", "Defect", "Conscience", "Paresthesia", "DPF"]
+        migraine_types = sorted(df_clean["Type"].unique())
 
         all_vars = ["Age", "Duration", "Frequency", "Intensity", "Location", "Character"] + binary_vars
         results = pd.DataFrame(index=all_vars, columns=migraine_types)
