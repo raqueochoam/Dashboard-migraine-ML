@@ -88,6 +88,10 @@ df, df_clean = load_data()
 
 # ========== SECCIÓN: INTRODUCCIÓN ==========
 if section == "Introduccion":
+    
+    image_path = "cerebros.png"
+    st.image(image_path, caption='Visualización de todas las redes cerebrales activadas', use_container_width=True)
+    
     st.markdown('<h2 class="section-header">Introducción</h2>', unsafe_allow_html=True)
 
     intro_text = """
@@ -553,10 +557,64 @@ elif section == "Análisis Estadístico":
             Asimismo, algunas variables sensoriales, como Vertigo, Sensory y DPF, presentan diferencias notables entre los subtipos, lo que sugiere posibles asociaciones específicas entre estos síntomas y ciertos diagnósticos más particulares (por ejemplo, migrañas basilares o hemipléjicas)."""
         
         st.markdown(txt_sintomas_tipo)
+        
+    with tab4:
+        st.markdown("### Box Plots de Variables Numéricas por Tipo de Migraña (Seaborn) 📦")
 
+        # Definir las variables numéricas
+        numeric_features = ["Age", "Duration", "Frequency", "Intensity"]
+        numeric_features = [col for col in numeric_features if col in df.columns]
+
+        # 2. Crear las pestañas
+        tabs_boxplot = st.tabs(numeric_features) 
+
+        # 3. Iterar sobre las columnas numéricas y las pestañas
+        for i, col in enumerate(numeric_features):
+            with tabs_boxplot[i]:
+                st.subheader(f"Box Plot de **{col}** vs. **Type**")
+        
+                # 4. Generar el Box Plot usando Plotly Express
+                fig = px.box(
+                    df, 
+                    x="Type",  # Variable categórica para el eje X (asumo que se llama 'TYPE' en mayúsculas)
+                    y=col,     # Variable numérica para el eje Y
+                    title=f"{col} por Tipo de Migraña",
+                    # Puedes usar 'color' si quieres que las cajas tengan diferente color según el 'TYPE'
+                    color="Type", 
+                )
+        
+                # Personalizar el layout (opcional)
+                fig.update_layout(
+                    xaxis_title="Tipo de Migraña",
+                    yaxis_title=col,
+                    xaxis_tickangle=0 # No rotar etiquetas si son pocas
+                )
+        
+                # 5. Mostrar el gráfico en Streamlit
+                st.plotly_chart(fig, use_container_width=True)
+        
 # ========== SECCIÓN: VISUALIZACIONES ==========
 elif section == "Visualizaciones":
-    st.markdown("## Visualizaciones")
+    st.markdown("## Visualizaciones de Localización Cerebral")
+    
+    st.markdown("""
+        Traté de visualizar las localizaciones de la migraña con una herramienta llamada **Brain Space**. 
+        Esta herramienta utiliza el **atlas Schaefer 400**, el cual no ordena las regiones por su posición física 
+        (como sería en un dato geográfico), sino por **Redes Funcionales** (Red Visual, Red de Atención, Red de Control, etc.).
+        """)
+    
+    st.markdown("### Visualización de Zona Frontal del Cerebro")
+    
+    video_url = "frontal-video.mp4" 
+    st.video(video_url)
+    
+    image_path = "frontal.png"
+    st.image(image_path, caption='Visualización de las redes activadas al seleccionar la zona frontal.', use_container_width=True)
+    
+    st.markdown("""
+        En la visualización de arriba, al tratar de seleccionar la parte de adelante del cerebro, 
+        estas fueron las redes funcionales que se activaron: parecen ser la **Red de Atención Ventral** y una parte de la **Red Límbica**
+        """)
 
 elif section == "Bibliografía":
     st.markdown('<h2 class="section-header">Bibliografía</h2>', unsafe_allow_html=True)
