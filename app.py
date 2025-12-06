@@ -273,12 +273,63 @@ elif section == "Descripcion de Datos":
         <ul style="color:#2D3748;">
             <li><b>ATAXIA</b>: contiene únicamente valores de 0 → sin variabilidad.</li>
             <li><b>VISUAL</b>: contiene valores fuera de rango (no binarios).</li>
+            <li><b>SENSORY</b>: contiene valores fuera de rango (no binarios).</li>
         </ul>
         <p style="color:#2D3748;">
             Por estas razones, ambas variables fueron removidas para crear <b>migrain_df_clean</b>.
         </p>
     </div>
     """, unsafe_allow_html=True)
+    
+    #HISTOGRAMAS DE LOS DATOS USANDO PESTAÑAS
+    st.markdown("---")
+
+    st.markdown("### Distribución de Variables (Histogramas)")
+    st.markdown("Explora la distribución individual de cada variable del dataset.")
+
+    all_cols = list(df.columns)
+    
+    histogram_cols = [
+        "Age", "Duration", "Frequency", "Intensity", "Location", 
+        "Character", "Nausea", "Vomit", "Phonophobia", "Photophobia",
+        "Visual", "Sensory", "Vertigo", "Tinnitus", "Hypoacusis", 
+        "Diplopia", "Defect", "Ataxia", "Conscience", "Paresthesia", "DPF"
+    ]
+
+    cols_to_plot = [col for col in histogram_cols if col in df.columns]
+
+    # Crear las pestañas
+    tabs = st.tabs(cols_to_plot) 
+
+    # Iteramos sobre columnas y pestañas
+    for i, col in enumerate(cols_to_plot):
+        with tabs[i]:
+            st.subheader(f"Distribución de la variable **{col}**")
+            
+            unique_vals = df[col].nunique()
+            
+            if unique_vals <= 10:
+                nbins = unique_vals
+            elif df[col].dtype in ['int64', 'float64'] and unique_vals > 10:
+                nbins = min(50, int(df[col].max() - df[col].min()) + 1)
+            else:
+                nbins = 30
+
+            fig = px.histogram(
+                df, 
+                x=col, 
+                title=f'Histograma de {col}',
+                color_discrete_sequence=['#1E3A8A'],
+                nbins=nbins
+            )
+            
+            fig.update_layout(
+                xaxis_title=col,
+                yaxis_title="Conteo de Registros",
+                bargap=0.05
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
 
 # ========== SECCIÓN: ANÁLISIS ESTADÍSTICO ==========
 elif section == "Análisis Estadístico":
