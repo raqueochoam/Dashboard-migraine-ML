@@ -565,32 +565,27 @@ elif section == "Análisis Estadístico":
         numeric_features = ["Age", "Duration", "Frequency", "Intensity"]
         numeric_features = [col for col in numeric_features if col in df.columns]
 
-        # 2. Crear las pestañas
+        #pestañas para boxplot
         tabs_boxplot = st.tabs(numeric_features) 
 
-        # 3. Iterar sobre las columnas numéricas y las pestañas
         for i, col in enumerate(numeric_features):
             with tabs_boxplot[i]:
                 st.subheader(f"Box Plot de **{col}** vs. **Type**")
         
-                # 4. Generar el Box Plot usando Plotly Express
                 fig = px.box(
                     df, 
-                    x="Type",  # Variable categórica para el eje X (asumo que se llama 'TYPE' en mayúsculas)
-                    y=col,     # Variable numérica para el eje Y
+                    x="Type",
+                    y=col,
                     title=f"{col} por Tipo de Migraña",
-                    # Puedes usar 'color' si quieres que las cajas tengan diferente color según el 'TYPE'
                     color="Type", 
                 )
         
-                # Personalizar el layout (opcional)
                 fig.update_layout(
                     xaxis_title="Tipo de Migraña",
                     yaxis_title=col,
-                    xaxis_tickangle=0 # No rotar etiquetas si son pocas
+                    xaxis_tickangle=0
                 )
         
-                # 5. Mostrar el gráfico en Streamlit
                 st.plotly_chart(fig, use_container_width=True)
         
 # ========== SECCIÓN: VISUALIZACIONES ==========
